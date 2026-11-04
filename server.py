@@ -35,6 +35,7 @@ ADMIN_EMAIL = os.environ.get('SMARTSPEND_ADMIN_EMAIL', 'admin@smartspend.local')
 ADMIN_PASSWORD = os.environ.get('SMARTSPEND_ADMIN_PASSWORD', 'SmartSpend@2026')
 MAX_BODY = 3 * 1024 * 1024
 COOKIE_NAME = 'smartspend_session'
+PERIOD_SOURCES = ('monthly_summary', 'weekly_summary', 'monthly_breakdown', 'weekly_breakdown')
 
 
 def local_today():
@@ -142,9 +143,9 @@ def manual_period_bounds(payload):
 def summary_interval(day, source):
     """Expand a stored summary's end date to the real covered date interval."""
     d = date.fromisoformat(day)
-    if source == 'monthly_summary':
+    if source in ('monthly_summary', 'monthly_breakdown'):
         return d.replace(day=1), d
-    if source == 'weekly_summary':
+    if source in ('weekly_summary', 'weekly_breakdown'):
         return d - timedelta(days=6), d
     return d, d
 
@@ -163,7 +164,7 @@ def overlapping_expenses(conn, user_id, first, last):
 
 def check_summary_overlap(conn, user_id, day, ignored_id=None):
     for row in overlapping_expenses(conn,user_id,day,day):
-        if row['source'] in ('monthly_summary','weekly_summary') and row['id'] != ignored_id:
+        if row['source'] in PERIOD_SOURCES and row['id'] != ignored_id:
             raise ApiError(409, 'This date is covered by a manually entered total. Delete the summary first to avoid double counting.')
 
 
@@ -264,7 +265,7 @@ def compute_analytics(conn,user_id,month):
 
 def load_weekly_counts(conn, user_id):
     completed=week_start(local_today())
-    rows=conn.execute("SELECT date,amount_cents FROM transactions WHERE user_id=? AND kind=? AND source!='monthly_summary' AND date<?",
+    rows=conn.execute("SELECT date,amount_cents FROM transactions WHERE user_id=? AND kind=? AND source NOT IN ('monthly_summary','monthly_breakdown') AND date<?",
                       (user_id,'expense',completed.isoformat())).fetchall()
     totals=Counter()
     for r in rows:
@@ -275,7 +276,7 @@ def load_weekly_counts(conn, user_id):
 
 def load_monthly_counts(conn,user_id):
     result=conn.execute('''SELECT substr(date,1,7) AS month, SUM(amount_cents) total
-                           FROM transactions WHERE user_id=? AND kind='expense' AND source!='weekly_summary'
+                           FROM transactions WHERE user_id=? AND kind='expense' AND source NOT IN ('weekly_summary','weekly_breakdown')
                            AND date < ? GROUP BY month ORDER BY month''',
                         (user_id,local_today().strftime('%Y-%m')+'-01')).fetchall()
     return [dict(r) for r in result]
@@ -427,10 +428,16 @@ class Handler(BaseHTTPRequestHandler):
                 current=conn.execute('SELECT * FROM transactions WHERE id=? AND user_id=?',(txid,uid)).fetchone()
                 if not current: raise ApiError(404,'Transaction not found.')
                 if method=='DELETE':
-                    conn.execute('DELETE FROM transactions WHERE id=? AND user_id=?',(txid,uid))
+                    if current['source'] in ('monthly_breakdown', 'weekly_breakdown'):
+                        # A category breakdown is one period's snapshot. Removing any
+                        # category removes the whole snapshot, never a partial period.
+                        conn.execute('DELETE FROM transactions WHERE user_id=? AND source=? AND date=?',
+                                     (uid,current['source'],current['date']))
+                    else:
+                        conn.execute('DELETE FROM transactions WHERE id=? AND user_id=?',(txid,uid))
                 else:
-                    if current['source'] in ('monthly_summary','weekly_summary'):
-                        raise ApiError(400,'To update a period total, use Add past spending. You can delete it here.')
+                    if current['source'] in PERIOD_SOURCES:
+                        raise ApiError(400,'To update saved period spending, use Add past spending. Delete an entire period snapshot here.')
                     data=self.payload()
                     merged={'date':data.get('date',current['date']),
                             'description':data.get('description',current['description']),
@@ -438,7 +445,7 @@ class Handler(BaseHTTPRequestHandler):
                             'type':data.get('type',current['kind']),
                             'amount':data.get('amount',current['amount_cents']/100)}
                     tx=validate_transaction(merged,current['source'])
-                    if tx['kind']=='expense' and current['source'] not in ('monthly_summary','weekly_summary'):
+                    if tx['kind']=='expense' and current['source'] not in PERIOD_SOURCES:
                         check_summary_overlap(conn,uid,tx['date'],txid)
                     conn.execute('''UPDATE transactions SET date=?,description=?,category=?,kind=?,amount_cents=?
                                    WHERE id=? AND user_id=?''',
@@ -456,33 +463,83 @@ class Handler(BaseHTTPRequestHandler):
                              (uid,month,int(round(amount*100))))
                 conn.commit()
                 return self.json(200,{'ok':True})
+            if path=='/api/history/manual' and method=='GET':
+                try: record_id=int(params.get('id',''))
+                except ValueError: raise ApiError(400,'Choose a saved history entry.')
+                if record_id<=0: raise ApiError(400,'Choose a saved history entry.')
+                record=conn.execute('SELECT * FROM transactions WHERE id=? AND user_id=?',
+                                    (record_id,uid)).fetchone()
+                if not record or record['source'] not in PERIOD_SOURCES:
+                    raise ApiError(404,'Saved history entry not found.')
+                source=record['source']
+                rows=conn.execute('SELECT category,amount_cents FROM transactions '
+                                  'WHERE user_id=? AND source=? AND date=?',
+                                  (uid,source,record['date'])).fetchall()
+                return self.json(200,{
+                    'period':'monthly' if source.startswith('monthly_') else 'weekly',
+                    'month':record['date'][:7],'date':record['date'],
+                    'mode':'breakdown' if source.endswith('breakdown') else 'total',
+                    'amount':round(sum(r['amount_cents'] for r in rows)/100,2),
+                    'categories':[{'category':r['category'],'amount':round(r['amount_cents']/100,2)}
+                                  for r in rows] if source.endswith('breakdown') else [],
+                })
             if path=='/api/history/manual' and method=='POST':
                 data=self.payload()
-                first,last,label,source=manual_period_bounds(data)
-                cents=parse_money(data.get('amount'))
-                overlapping=overlapping_expenses(conn,uid,first,last)
-                same=[r for r in overlapping if r['source']==source]
-                if len(overlapping)>1 or (overlapping and not same):
-                    raise ApiError(409, 'This period already contains expense records or another summary. '
-                                         'To avoid double counting, use your existing transactions or delete them before entering a period total.')
-                if same:
-                    conn.execute('''UPDATE transactions SET date=?,amount_cents=?,description=?,category=?
-                        WHERE id=? AND user_id=?''',(last,cents,label,'Other',same[0]['id'],uid))
-                    record_id=same[0]['id']; status=200
+                first,last,label,base_source=manual_period_bounds(data)
+                mode=str(data.get('mode','total')).strip().lower()
+                if mode not in ('total','breakdown'):
+                    raise ApiError(400,'Choose total expenses or category breakdown.')
+                source=base_source if mode=='total' else base_source.replace('summary','breakdown')
+                if mode=='total':
+                    entries=[(label,'Other',parse_money(data.get('amount')))]
                 else:
-                    c=conn.execute('''INSERT INTO transactions(user_id,date,description,category,kind,amount_cents,source)
-                        VALUES (?,?,?,?,?,?,?)''',(uid,last,label,'Other','expense',cents,source))
-                    record_id=c.lastrowid; status=201
+                    items=data.get('categories',[])
+                    if not isinstance(items,list) or not 1<=len(items)<=len(CATEGORIES):
+                        raise ApiError(400,'Enter at least one spending category.')
+                    seen=set();entries=[]
+                    for item in items:
+                        if not isinstance(item,dict) or item.get('category') not in CATEGORIES:
+                            raise ApiError(400,'Choose a valid spending category.')
+                        category=item['category']
+                        if category in seen:
+                            raise ApiError(400,'Enter each spending category only once.')
+                        seen.add(category)
+                        cents=parse_money(item.get('amount'))
+                        entries.append((f'{label.replace("expense total", "category spending")} · {category}',
+                                        category,cents))
+                    if sum(cents for _,_,cents in entries)>1000000000:
+                        raise ApiError(400,'Total spending cannot exceed ₱10,000,000.')
+                overlapping=overlapping_expenses(conn,uid,first,last)
+                # Only the same exact saved period may be replaced. This also allows
+                # switching between a single total and an itemized category breakdown.
+                if any(r['source'] not in PERIOD_SOURCES or
+                       tuple(v.isoformat() for v in summary_interval(r['date'],r['source']))!=(first,last)
+                       for r in overlapping):
+                    raise ApiError(409,'This period already contains transactions or another overlapping week/month. '
+                                       'Delete those entries before saving a complete period total or breakdown.')
+                existing_ids=[r['id'] for r in overlapping]
+                if existing_ids:
+                    conn.executemany('DELETE FROM transactions WHERE id=? AND user_id=?',
+                                     [(record_id,uid) for record_id in existing_ids])
+                last_id=None
+                for description,category,cents in entries:
+                    record=conn.execute('''INSERT INTO transactions(user_id,date,description,category,kind,amount_cents,source)
+                        VALUES (?,?,?,?,?,?,?)''',(uid,last,description,category,'expense',cents,source))
+                    last_id=record.lastrowid
                 conn.commit()
-                return self.json(status,{'ok':True,'id':record_id,'period_start':first,
-                                         'period_end':last,'updated':bool(same)})
+                return self.json(200 if existing_ids else 201,{
+                    'ok':True,'id':last_id,'period_start':first,'period_end':last,
+                    'updated':bool(existing_ids),'entry_count':len(entries),
+                    'total_amount':round(sum(item[2] for item in entries)/100,2),
+                    'mode':mode,
+                })
             if path=='/api/predict' and method=='POST':
                 period=self.payload().get('period','monthly')
                 if period not in ('monthly','weekly'):
                     raise ApiError(400,'Choose weekly or monthly forecast.')
-                excluded='monthly_summary' if period=='weekly' else 'weekly_summary'
-                rows=conn.execute('SELECT date,amount_cents FROM transactions WHERE user_id=? AND kind=? AND source!=?',
-                                  (uid,'expense',excluded)).fetchall()
+                excluded=('monthly_summary','monthly_breakdown') if period=='weekly' else ('weekly_summary','weekly_breakdown')
+                rows=conn.execute('SELECT date,amount_cents FROM transactions WHERE user_id=? AND kind=? AND source NOT IN (?,?)',
+                                  (uid,'expense',*excluded)).fetchall()
                 try:result=fit_and_forecast([dict(r) for r in rows],today=local_today(),period=period)
                 except InsufficientHistory as e:
                     raise ApiError(422,str(e),months_available=e.available,months_required=e.needed)

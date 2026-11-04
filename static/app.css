@@ -27,3 +27,26 @@
 
 /* A quick manual-entry path and clear weekly/monthly forecast switch. */
 .manual-intro{margin-bottom:18px}.manual-choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.manual-choice{padding:22px;border:1px solid #e5eee3;border-radius:15px;background:#f9fcf8}.manual-choice h3{font-size:14px;margin:12px 0 7px}.manual-choice p{font-size:11px;line-height:1.75;color:#819785;min-height:58px}.manual-choice-icon{width:36px;height:36px;border-radius:10px;background:#e6f1e1;color:#4b805c;display:grid;place-items:center}.manual-choice .btn{margin-top:10px}.predict-cta{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-top:9px}.predict-cta .btn{margin-top:6px}.period-picker{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:18px;padding:16px 22px;background:white;border:1px solid var(--line);border-radius:15px}.period-picker strong{font-size:13px}.period-picker p{color:#8ca393;font-size:11px;margin:5px 0 0}.period-switch{display:flex;gap:4px;padding:4px;background:#f0f5ee;border-radius:11px}.period-switch button{border:0;background:transparent;padding:10px 19px;border-radius:9px;cursor:pointer;color:#738e7b;font-weight:700;font-size:11px}.period-switch button.selected{background:#fff;color:#244c3c;box-shadow:0 2px 7px #15371d16}.history-fields{display:grid;gap:14px}.history-fields .field[hidden]{display:none}.history-fields .fineprint{margin:0}.predict-hero .predict-intro{min-height:300px}@media(max-width:680px){.manual-choice-grid{grid-template-columns:1fr}.period-picker{flex-direction:column;align-items:stretch}.period-switch{align-self:stretch}.period-switch button{flex:1}.manual-choice p{min-height:0}}
+
+/* Manual history: choose one total or an optional category breakdown. */
+.history-dialog{width:min(575px,calc(100vw - 26px));overflow-y:auto}
+.history-mode-fieldset{margin:0;padding:0;border:0;min-width:0}
+.history-mode-fieldset legend{font-size:11px;font-weight:800;color:#52695b;margin-bottom:10px}
+.history-mode-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.history-mode-option{display:flex;align-items:flex-start;gap:9px;padding:12px 13px;border:1px solid #e2ece0;border-radius:12px;background:#f9fbf8;cursor:pointer;min-width:0}
+.history-mode-option:has(input:checked){border-color:#91bba0;background:#eef6eb;box-shadow:0 0 0 1px #b2d1b6}
+.history-mode-option input{margin-top:3px;accent-color:#215541;cursor:pointer}
+.history-mode-option span{display:flex;flex-direction:column;gap:4px;min-width:0}
+.history-mode-option strong{font-size:11px;font-weight:800;color:#2a4b3d}
+.history-mode-option small{font-size:10px;color:#7f9787;line-height:1.5}
+.history-breakdown-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.history-breakdown-heading strong{font-size:12px;color:#2b4a3c}
+.history-breakdown-heading span{font-size:10px;color:#859988}
+.history-breakdown-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 13px}
+.history-category-field{min-width:0}
+.history-category-field span{font-size:11px}
+.history-breakdown-total{display:flex;align-items:center;justify-content:space-between;gap:12px;border-radius:12px;padding:15px 17px;margin-top:15px;background:#eaf4e5;border:1px solid #d6e9d4}
+.history-breakdown-total span{font-size:11px;color:#66806e;font-weight:800}
+.history-breakdown-total strong{font-size:20px;color:#1f523f;font-weight:800}
+#history-total-field[hidden],#history-breakdown-field[hidden]{display:none}
+@media(max-width:440px){.history-mode-options{grid-template-columns:1fr}.history-breakdown-grid{grid-template-columns:1fr}.history-dialog .dialog-content{padding:20px}.history-breakdown-heading{align-items:flex-start;flex-direction:column;gap:4px}}
