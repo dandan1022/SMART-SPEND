@@ -1,0 +1,529 @@
+date,description,category,amount,type
+2024-11-06,Coffee,Food & Drinks,235.72,expense
+2024-11-10,Dinner,Food & Drinks,942.5,expense
+2024-11-18,Coffee,Food & Drinks,448.56,expense
+2024-11-25,Dinner,Food & Drinks,920.58,expense
+2024-11-30,Coffee,Food & Drinks,284.91,expense
+2024-11-03,Lunch,Food & Drinks,181.6,expense
+2024-11-05,Jeepney / Bus,Transportation,229.82,expense
+2024-11-10,Fuel,Transportation,186.02,expense
+2024-11-17,Fuel,Transportation,396.72,expense
+2024-11-26,Fuel,Transportation,311.95,expense
+2024-11-02,Fuel,Transportation,182.28,expense
+2024-11-03,Clothing,Shopping,944.28,expense
+2024-11-11,Household items,Shopping,281.91,expense
+2024-11-07,Internet,Bills & Utilities,552.14,expense
+2024-11-14,Water,Bills & Utilities,1106.93,expense
+2024-11-20,Internet,Bills & Utilities,495.08,expense
+2024-11-04,Pharmacy,Health,493.91,expense
+2024-11-06,Streaming,Entertainment,481.78,expense
+2024-11-12,Streaming,Entertainment,369.72,expense
+2024-11-05,Books,Education,449.77,expense
+2024-11-05,Sample income,Income,14825.0,income
+2024-11-20,Sample income,Income,14720.0,income
+2024-12-04,Dinner,Food & Drinks,629.18,expense
+2024-12-13,Dinner,Food & Drinks,848.75,expense
+2024-12-20,Groceries,Food & Drinks,887.23,expense
+2024-12-21,Groceries,Food & Drinks,341.68,expense
+2024-12-29,Lunch,Food & Drinks,329.84,expense
+2024-12-06,Coffee,Food & Drinks,735.19,expense
+2024-12-06,Fuel,Transportation,362.22,expense
+2024-12-14,Jeepney / Bus,Transportation,157.69,expense
+2024-12-19,Fuel,Transportation,153.09,expense
+2024-12-24,Jeepney / Bus,Transportation,394.12,expense
+2024-12-30,Ride booking,Transportation,386.26,expense
+2024-12-08,Household items,Shopping,604.4,expense
+2024-12-14,Household items,Shopping,984.0,expense
+2024-12-05,Internet,Bills & Utilities,647.57,expense
+2024-12-11,Electricity,Bills & Utilities,1446.22,expense
+2024-12-15,Electricity,Bills & Utilities,1987.38,expense
+2024-12-05,Pharmacy,Health,517.47,expense
+2024-12-07,Streaming,Entertainment,344.74,expense
+2024-12-14,Cinema,Entertainment,314.37,expense
+2024-12-08,School supplies,Education,208.85,expense
+2024-12-05,Sample income,Income,14259.0,income
+2024-12-20,Sample income,Income,14414.0,income
+2025-01-05,Groceries,Food & Drinks,387.33,expense
+2025-01-14,Lunch,Food & Drinks,860.32,expense
+2025-01-18,Coffee,Food & Drinks,697.43,expense
+2025-01-25,Lunch,Food & Drinks,547.18,expense
+2025-01-29,Coffee,Food & Drinks,964.31,expense
+2025-01-04,Coffee,Food & Drinks,488.03,expense
+2025-01-05,Fuel,Transportation,379.42,expense
+2025-01-14,Fuel,Transportation,193.3,expense
+2025-01-20,Jeepney / Bus,Transportation,210.75,expense
+2025-01-23,Ride booking,Transportation,224.05,expense
+2025-01-30,Fuel,Transportation,214.43,expense
+2025-01-07,Clothing,Shopping,751.93,expense
+2025-01-11,Clothing,Shopping,1034.38,expense
+2025-01-03,Internet,Bills & Utilities,1134.5,expense
+2025-01-12,Water,Bills & Utilities,1010.15,expense
+2025-01-18,Water,Bills & Utilities,2121.42,expense
+2025-01-08,Health essentials,Health,239.57,expense
+2025-01-04,Streaming,Entertainment,186.76,expense
+2025-01-13,Cinema,Entertainment,257.66,expense
+2025-01-05,Books,Education,666.06,expense
+2025-01-05,Sample income,Income,14706.0,income
+2025-01-20,Sample income,Income,14556.0,income
+2025-02-04,Coffee,Food & Drinks,359.0,expense
+2025-02-10,Coffee,Food & Drinks,535.71,expense
+2025-02-19,Dinner,Food & Drinks,767.23,expense
+2025-02-24,Groceries,Food & Drinks,186.69,expense
+2025-02-28,Groceries,Food & Drinks,895.0,expense
+2025-02-10,Dinner,Food & Drinks,290.65,expense
+2025-02-06,Jeepney / Bus,Transportation,171.8,expense
+2025-02-13,Ride booking,Transportation,209.73,expense
+2025-02-16,Ride booking,Transportation,277.87,expense
+2025-02-24,Jeepney / Bus,Transportation,411.92,expense
+2025-02-02,Fuel,Transportation,287.05,expense
+2025-02-07,Household items,Shopping,268.76,expense
+2025-02-09,Household items,Shopping,639.44,expense
+2025-02-05,Electricity,Bills & Utilities,646.26,expense
+2025-02-12,Water,Bills & Utilities,659.44,expense
+2025-02-19,Electricity,Bills & Utilities,960.62,expense
+2025-02-05,Pharmacy,Health,370.9,expense
+2025-02-08,Streaming,Entertainment,256.14,expense
+2025-02-13,Streaming,Entertainment,462.64,expense
+2025-02-07,Books,Education,215.99,expense
+2025-02-05,Sample income,Income,14436.0,income
+2025-02-20,Sample income,Income,14508.0,income
+2025-03-08,Groceries,Food & Drinks,528.57,expense
+2025-03-09,Lunch,Food & Drinks,777.79,expense
+2025-03-20,Dinner,Food & Drinks,256.0,expense
+2025-03-25,Lunch,Food & Drinks,217.47,expense
+2025-03-31,Lunch,Food & Drinks,287.01,expense
+2025-03-02,Dinner,Food & Drinks,897.75,expense
+2025-03-07,Ride booking,Transportation,409.76,expense
+2025-03-12,Fuel,Transportation,249.71,expense
+2025-03-18,Jeepney / Bus,Transportation,169.98,expense
+2025-03-21,Ride booking,Transportation,158.49,expense
+2025-03-27,Ride booking,Transportation,214.99,expense
+2025-03-05,Household items,Shopping,966.52,expense
+2025-03-13,Clothing,Shopping,577.68,expense
+2025-03-06,Internet,Bills & Utilities,813.63,expense
+2025-03-13,Electricity,Bills & Utilities,1222.71,expense
+2025-03-15,Water,Bills & Utilities,585.35,expense
+2025-03-07,Health essentials,Health,190.99,expense
+2025-03-06,Cinema,Entertainment,300.67,expense
+2025-03-10,Cinema,Entertainment,490.03,expense
+2025-03-06,School supplies,Education,492.49,expense
+2025-03-05,Sample income,Income,15143.0,income
+2025-03-20,Sample income,Income,14646.0,income
+2025-04-08,Lunch,Food & Drinks,696.43,expense
+2025-04-10,Coffee,Food & Drinks,327.68,expense
+2025-04-20,Lunch,Food & Drinks,442.65,expense
+2025-04-26,Lunch,Food & Drinks,541.67,expense
+2025-04-30,Dinner,Food & Drinks,763.95,expense
+2025-04-07,Coffee,Food & Drinks,318.68,expense
+2025-04-07,Fuel,Transportation,187.65,expense
+2025-04-13,Ride booking,Transportation,188.32,expense
+2025-04-18,Fuel,Transportation,177.74,expense
+2025-04-22,Jeepney / Bus,Transportation,141.3,expense
+2025-04-29,Fuel,Transportation,321.18,expense
+2025-04-04,Clothing,Shopping,1034.0,expense
+2025-04-12,Household items,Shopping,369.51,expense
+2025-04-05,Electricity,Bills & Utilities,519.5,expense
+2025-04-12,Electricity,Bills & Utilities,2173.86,expense
+2025-04-15,Internet,Bills & Utilities,1911.17,expense
+2025-04-04,Health essentials,Health,366.14,expense
+2025-04-06,Streaming,Entertainment,296.21,expense
+2025-04-13,Cinema,Entertainment,182.52,expense
+2025-04-03,School supplies,Education,582.57,expense
+2025-04-05,Sample income,Income,15021.0,income
+2025-04-20,Sample income,Income,14821.0,income
+2025-05-07,Groceries,Food & Drinks,422.51,expense
+2025-05-12,Groceries,Food & Drinks,532.75,expense
+2025-05-20,Coffee,Food & Drinks,750.02,expense
+2025-05-26,Lunch,Food & Drinks,267.69,expense
+2025-05-28,Groceries,Food & Drinks,859.38,expense
+2025-05-06,Dinner,Food & Drinks,395.59,expense
+2025-05-06,Jeepney / Bus,Transportation,271.13,expense
+2025-05-10,Ride booking,Transportation,192.53,expense
+2025-05-18,Fuel,Transportation,97.83,expense
+2025-05-22,Fuel,Transportation,81.91,expense
+2025-05-30,Jeepney / Bus,Transportation,160.71,expense
+2025-05-05,Clothing,Shopping,463.11,expense
+2025-05-09,Household items,Shopping,1004.25,expense
+2025-05-03,Electricity,Bills & Utilities,751.38,expense
+2025-05-10,Electricity,Bills & Utilities,1085.0,expense
+2025-05-15,Water,Bills & Utilities,869.84,expense
+2025-05-08,Health essentials,Health,532.7,expense
+2025-05-03,Streaming,Entertainment,398.72,expense
+2025-05-14,Cinema,Entertainment,170.54,expense
+2025-05-06,School supplies,Education,323.74,expense
+2025-05-05,Sample income,Income,14855.0,income
+2025-05-20,Sample income,Income,14943.0,income
+2025-06-05,Groceries,Food & Drinks,723.34,expense
+2025-06-10,Coffee,Food & Drinks,545.02,expense
+2025-06-19,Dinner,Food & Drinks,693.53,expense
+2025-06-24,Groceries,Food & Drinks,738.76,expense
+2025-06-01,Dinner,Food & Drinks,998.01,expense
+2025-06-06,Dinner,Food & Drinks,961.5,expense
+2025-06-05,Ride booking,Transportation,115.9,expense
+2025-06-14,Fuel,Transportation,367.78,expense
+2025-06-16,Fuel,Transportation,152.41,expense
+2025-06-23,Fuel,Transportation,482.38,expense
+2025-06-02,Jeepney / Bus,Transportation,125.14,expense
+2025-06-07,Household items,Shopping,324.84,expense
+2025-06-11,Clothing,Shopping,912.02,expense
+2025-06-03,Internet,Bills & Utilities,2225.72,expense
+2025-06-09,Water,Bills & Utilities,1455.96,expense
+2025-06-20,Internet,Bills & Utilities,923.29,expense
+2025-06-03,Health essentials,Health,600.58,expense
+2025-06-04,Streaming,Entertainment,522.83,expense
+2025-06-10,Streaming,Entertainment,295.29,expense
+2025-06-03,Books,Education,649.25,expense
+2025-06-05,Sample income,Income,14982.0,income
+2025-06-20,Sample income,Income,15095.0,income
+2025-07-05,Coffee,Food & Drinks,305.08,expense
+2025-07-13,Coffee,Food & Drinks,885.78,expense
+2025-07-15,Dinner,Food & Drinks,227.15,expense
+2025-07-24,Groceries,Food & Drinks,395.66,expense
+2025-07-28,Coffee,Food & Drinks,745.2,expense
+2025-07-06,Coffee,Food & Drinks,972.29,expense
+2025-07-04,Fuel,Transportation,75.95,expense
+2025-07-11,Ride booking,Transportation,281.53,expense
+2025-07-15,Fuel,Transportation,208.94,expense
+2025-07-22,Jeepney / Bus,Transportation,91.94,expense
+2025-07-27,Fuel,Transportation,88.79,expense
+2025-07-06,Clothing,Shopping,990.62,expense
+2025-07-11,Household items,Shopping,1269.82,expense
+2025-07-03,Water,Bills & Utilities,1346.68,expense
+2025-07-14,Electricity,Bills & Utilities,1092.53,expense
+2025-07-18,Electricity,Bills & Utilities,1330.96,expense
+2025-07-06,Health essentials,Health,364.17,expense
+2025-07-05,Streaming,Entertainment,161.09,expense
+2025-07-09,Cinema,Entertainment,234.21,expense
+2025-07-03,Books,Education,620.98,expense
+2025-07-05,Sample income,Income,15377.0,income
+2025-07-20,Sample income,Income,15214.0,income
+2025-08-08,Groceries,Food & Drinks,358.38,expense
+2025-08-09,Coffee,Food & Drinks,512.55,expense
+2025-08-17,Lunch,Food & Drinks,888.21,expense
+2025-08-26,Lunch,Food & Drinks,721.35,expense
+2025-08-31,Dinner,Food & Drinks,609.19,expense
+2025-08-06,Lunch,Food & Drinks,332.84,expense
+2025-08-06,Fuel,Transportation,323.93,expense
+2025-08-12,Ride booking,Transportation,279.9,expense
+2025-08-17,Fuel,Transportation,162.64,expense
+2025-08-26,Fuel,Transportation,277.24,expense
+2025-08-27,Fuel,Transportation,265.95,expense
+2025-08-06,Household items,Shopping,505.76,expense
+2025-08-14,Household items,Shopping,593.04,expense
+2025-08-08,Internet,Bills & Utilities,1694.87,expense
+2025-08-09,Water,Bills & Utilities,1434.03,expense
+2025-08-16,Electricity,Bills & Utilities,2031.7,expense
+2025-08-03,Health essentials,Health,530.53,expense
+2025-08-04,Cinema,Entertainment,291.52,expense
+2025-08-10,Streaming,Entertainment,442.31,expense
+2025-08-05,Books,Education,412.92,expense
+2025-08-05,Sample income,Income,15069.0,income
+2025-08-20,Sample income,Income,15505.0,income
+2025-09-04,Lunch,Food & Drinks,867.91,expense
+2025-09-12,Dinner,Food & Drinks,614.42,expense
+2025-09-19,Dinner,Food & Drinks,291.3,expense
+2025-09-22,Coffee,Food & Drinks,807.59,expense
+2025-09-27,Coffee,Food & Drinks,969.45,expense
+2025-09-03,Groceries,Food & Drinks,297.58,expense
+2025-09-07,Jeepney / Bus,Transportation,108.71,expense
+2025-09-12,Jeepney / Bus,Transportation,204.92,expense
+2025-09-16,Ride booking,Transportation,145.02,expense
+2025-09-22,Fuel,Transportation,413.77,expense
+2025-09-01,Ride booking,Transportation,372.22,expense
+2025-09-07,Clothing,Shopping,994.98,expense
+2025-09-11,Household items,Shopping,1321.13,expense
+2025-09-07,Internet,Bills & Utilities,999.85,expense
+2025-09-12,Electricity,Bills & Utilities,622.34,expense
+2025-09-17,Internet,Bills & Utilities,1158.91,expense
+2025-09-08,Health essentials,Health,427.8,expense
+2025-09-08,Streaming,Entertainment,213.37,expense
+2025-09-12,Cinema,Entertainment,208.06,expense
+2025-09-06,School supplies,Education,283.72,expense
+2025-09-05,Sample income,Income,15643.0,income
+2025-09-20,Sample income,Income,15361.0,income
+2025-10-05,Groceries,Food & Drinks,552.11,expense
+2025-10-11,Groceries,Food & Drinks,352.52,expense
+2025-10-20,Groceries,Food & Drinks,540.98,expense
+2025-10-23,Groceries,Food & Drinks,970.43,expense
+2025-10-31,Dinner,Food & Drinks,279.95,expense
+2025-10-04,Dinner,Food & Drinks,760.51,expense
+2025-10-06,Ride booking,Transportation,179.92,expense
+2025-10-13,Fuel,Transportation,244.37,expense
+2025-10-18,Ride booking,Transportation,228.36,expense
+2025-10-26,Ride booking,Transportation,257.3,expense
+2025-10-27,Ride booking,Transportation,193.09,expense
+2025-10-08,Clothing,Shopping,681.76,expense
+2025-10-12,Clothing,Shopping,1017.08,expense
+2025-10-05,Electricity,Bills & Utilities,1836.89,expense
+2025-10-12,Electricity,Bills & Utilities,1771.26,expense
+2025-10-19,Internet,Bills & Utilities,972.06,expense
+2025-10-03,Health essentials,Health,577.73,expense
+2025-10-06,Streaming,Entertainment,243.78,expense
+2025-10-11,Streaming,Entertainment,144.18,expense
+2025-10-04,School supplies,Education,310.51,expense
+2025-10-05,Sample income,Income,15595.0,income
+2025-10-20,Sample income,Income,15219.0,income
+2025-11-06,Groceries,Food & Drinks,710.71,expense
+2025-11-09,Coffee,Food & Drinks,940.42,expense
+2025-11-19,Groceries,Food & Drinks,831.83,expense
+2025-11-22,Lunch,Food & Drinks,288.08,expense
+2025-11-28,Groceries,Food & Drinks,1008.38,expense
+2025-11-04,Dinner,Food & Drinks,987.59,expense
+2025-11-07,Ride booking,Transportation,382.73,expense
+2025-11-09,Fuel,Transportation,283.28,expense
+2025-11-19,Ride booking,Transportation,256.91,expense
+2025-11-21,Fuel,Transportation,232.74,expense
+2025-11-28,Fuel,Transportation,438.32,expense
+2025-11-06,Clothing,Shopping,866.2,expense
+2025-11-10,Household items,Shopping,756.63,expense
+2025-11-08,Internet,Bills & Utilities,1723.96,expense
+2025-11-12,Electricity,Bills & Utilities,1455.72,expense
+2025-11-19,Internet,Bills & Utilities,1821.99,expense
+2025-11-03,Pharmacy,Health,541.61,expense
+2025-11-06,Cinema,Entertainment,242.66,expense
+2025-11-14,Cinema,Entertainment,244.93,expense
+2025-11-08,School supplies,Education,485.16,expense
+2025-11-05,Sample income,Income,15249.0,income
+2025-11-20,Sample income,Income,15487.0,income
+2025-12-08,Groceries,Food & Drinks,523.91,expense
+2025-12-09,Coffee,Food & Drinks,1092.4,expense
+2025-12-20,Groceries,Food & Drinks,808.95,expense
+2025-12-25,Groceries,Food & Drinks,272.12,expense
+2025-12-29,Coffee,Food & Drinks,739.44,expense
+2025-12-07,Coffee,Food & Drinks,935.85,expense
+2025-12-05,Jeepney / Bus,Transportation,228.4,expense
+2025-12-14,Jeepney / Bus,Transportation,420.49,expense
+2025-12-15,Jeepney / Bus,Transportation,130.18,expense
+2025-12-23,Fuel,Transportation,387.01,expense
+2025-12-28,Fuel,Transportation,387.77,expense
+2025-12-05,Clothing,Shopping,1423.52,expense
+2025-12-09,Household items,Shopping,1455.17,expense
+2025-12-06,Water,Bills & Utilities,964.37,expense
+2025-12-14,Internet,Bills & Utilities,875.99,expense
+2025-12-15,Electricity,Bills & Utilities,2609.61,expense
+2025-12-05,Health essentials,Health,621.92,expense
+2025-12-06,Cinema,Entertainment,213.12,expense
+2025-12-09,Streaming,Entertainment,417.1,expense
+2025-12-07,Books,Education,324.06,expense
+2025-12-05,Sample income,Income,15388.0,income
+2025-12-20,Sample income,Income,15821.0,income
+2026-01-03,Coffee,Food & Drinks,339.18,expense
+2026-01-13,Coffee,Food & Drinks,578.78,expense
+2026-01-18,Groceries,Food & Drinks,637.57,expense
+2026-01-26,Lunch,Food & Drinks,1157.79,expense
+2026-01-29,Lunch,Food & Drinks,1183.06,expense
+2026-01-04,Lunch,Food & Drinks,908.32,expense
+2026-01-06,Fuel,Transportation,428.29,expense
+2026-01-12,Fuel,Transportation,112.17,expense
+2026-01-15,Jeepney / Bus,Transportation,390.37,expense
+2026-01-25,Fuel,Transportation,298.62,expense
+2026-01-31,Ride booking,Transportation,155.57,expense
+2026-01-06,Household items,Shopping,1365.47,expense
+2026-01-11,Clothing,Shopping,338.13,expense
+2026-01-05,Electricity,Bills & Utilities,1957.19,expense
+2026-01-13,Internet,Bills & Utilities,2103.95,expense
+2026-01-15,Internet,Bills & Utilities,1434.31,expense
+2026-01-04,Health essentials,Health,241.04,expense
+2026-01-06,Streaming,Entertainment,240.61,expense
+2026-01-12,Cinema,Entertainment,585.4,expense
+2026-01-07,School supplies,Education,794.85,expense
+2026-01-05,Sample income,Income,15658.0,income
+2026-01-20,Sample income,Income,15519.0,income
+2026-02-05,Lunch,Food & Drinks,736.79,expense
+2026-02-14,Lunch,Food & Drinks,630.42,expense
+2026-02-20,Groceries,Food & Drinks,895.05,expense
+2026-02-25,Lunch,Food & Drinks,878.47,expense
+2026-02-02,Dinner,Food & Drinks,378.4,expense
+2026-02-06,Coffee,Food & Drinks,680.25,expense
+2026-02-06,Ride booking,Transportation,308.87,expense
+2026-02-14,Jeepney / Bus,Transportation,131.02,expense
+2026-02-19,Jeepney / Bus,Transportation,382.24,expense
+2026-02-22,Fuel,Transportation,205.96,expense
+2026-02-03,Fuel,Transportation,148.47,expense
+2026-02-04,Household items,Shopping,645.67,expense
+2026-02-12,Household items,Shopping,1222.11,expense
+2026-02-05,Water,Bills & Utilities,1030.14,expense
+2026-02-10,Water,Bills & Utilities,1589.16,expense
+2026-02-20,Water,Bills & Utilities,918.6,expense
+2026-02-05,Health essentials,Health,592.19,expense
+2026-02-03,Cinema,Entertainment,529.58,expense
+2026-02-14,Streaming,Entertainment,360.62,expense
+2026-02-04,School supplies,Education,631.96,expense
+2026-02-05,Sample income,Income,15686.0,income
+2026-02-20,Sample income,Income,15578.0,income
+2026-03-04,Dinner,Food & Drinks,442.71,expense
+2026-03-13,Lunch,Food & Drinks,766.69,expense
+2026-03-19,Dinner,Food & Drinks,652.3,expense
+2026-03-23,Coffee,Food & Drinks,323.0,expense
+2026-03-29,Lunch,Food & Drinks,434.28,expense
+2026-03-07,Dinner,Food & Drinks,252.94,expense
+2026-03-07,Fuel,Transportation,448.24,expense
+2026-03-10,Ride booking,Transportation,363.91,expense
+2026-03-18,Fuel,Transportation,284.01,expense
+2026-03-22,Ride booking,Transportation,149.53,expense
+2026-03-29,Ride booking,Transportation,195.76,expense
+2026-03-07,Household items,Shopping,1206.22,expense
+2026-03-10,Clothing,Shopping,916.29,expense
+2026-03-08,Water,Bills & Utilities,2065.66,expense
+2026-03-12,Electricity,Bills & Utilities,2309.48,expense
+2026-03-20,Water,Bills & Utilities,1595.63,expense
+2026-03-08,Pharmacy,Health,396.74,expense
+2026-03-03,Cinema,Entertainment,548.9,expense
+2026-03-12,Streaming,Entertainment,393.57,expense
+2026-03-05,School supplies,Education,561.64,expense
+2026-03-05,Sample income,Income,15926.0,income
+2026-03-20,Sample income,Income,15804.0,income
+2026-04-03,Coffee,Food & Drinks,754.01,expense
+2026-04-10,Lunch,Food & Drinks,802.09,expense
+2026-04-20,Groceries,Food & Drinks,306.04,expense
+2026-04-23,Dinner,Food & Drinks,274.1,expense
+2026-04-02,Groceries,Food & Drinks,1064.15,expense
+2026-04-05,Dinner,Food & Drinks,785.9,expense
+2026-04-04,Jeepney / Bus,Transportation,415.25,expense
+2026-04-09,Ride booking,Transportation,443.08,expense
+2026-04-15,Jeepney / Bus,Transportation,200.76,expense
+2026-04-26,Fuel,Transportation,333.07,expense
+2026-04-29,Jeepney / Bus,Transportation,197.41,expense
+2026-04-04,Clothing,Shopping,877.98,expense
+2026-04-12,Household items,Shopping,1411.69,expense
+2026-04-05,Electricity,Bills & Utilities,2244.91,expense
+2026-04-14,Water,Bills & Utilities,1667.79,expense
+2026-04-19,Electricity,Bills & Utilities,1022.3,expense
+2026-04-03,Health essentials,Health,501.09,expense
+2026-04-04,Cinema,Entertainment,470.75,expense
+2026-04-11,Streaming,Entertainment,222.67,expense
+2026-04-07,School supplies,Education,806.9,expense
+2026-04-05,Sample income,Income,16012.0,income
+2026-04-20,Sample income,Income,15850.0,income
+2026-05-04,Lunch,Food & Drinks,680.78,expense
+2026-05-13,Groceries,Food & Drinks,550.76,expense
+2026-05-20,Coffee,Food & Drinks,1034.18,expense
+2026-05-23,Groceries,Food & Drinks,810.92,expense
+2026-05-29,Coffee,Food & Drinks,954.1,expense
+2026-05-03,Lunch,Food & Drinks,435.58,expense
+2026-05-08,Jeepney / Bus,Transportation,398.1,expense
+2026-05-13,Fuel,Transportation,214.81,expense
+2026-05-17,Fuel,Transportation,81.53,expense
+2026-05-26,Ride booking,Transportation,458.38,expense
+2026-05-28,Jeepney / Bus,Transportation,427.87,expense
+2026-05-06,Household items,Shopping,1175.65,expense
+2026-05-11,Clothing,Shopping,558.84,expense
+2026-05-07,Water,Bills & Utilities,2289.38,expense
+2026-05-11,Internet,Bills & Utilities,1728.68,expense
+2026-05-18,Internet,Bills & Utilities,1163.44,expense
+2026-05-04,Health essentials,Health,628.85,expense
+2026-05-04,Streaming,Entertainment,141.49,expense
+2026-05-11,Cinema,Entertainment,212.82,expense
+2026-05-05,School supplies,Education,237.43,expense
+2026-05-05,Sample income,Income,16065.0,income
+2026-05-20,Sample income,Income,16169.0,income
+2026-06-05,Groceries,Food & Drinks,540.72,expense
+2026-06-09,Dinner,Food & Drinks,726.79,expense
+2026-06-17,Dinner,Food & Drinks,787.1,expense
+2026-06-21,Dinner,Food & Drinks,521.33,expense
+2026-06-27,Dinner,Food & Drinks,1040.52,expense
+2026-06-08,Groceries,Food & Drinks,1076.17,expense
+2026-06-07,Jeepney / Bus,Transportation,517.74,expense
+2026-06-14,Ride booking,Transportation,209.71,expense
+2026-06-19,Ride booking,Transportation,93.86,expense
+2026-06-26,Jeepney / Bus,Transportation,442.8,expense
+2026-06-02,Fuel,Transportation,467.25,expense
+2026-06-03,Clothing,Shopping,796.52,expense
+2026-06-12,Household items,Shopping,347.08,expense
+2026-06-04,Water,Bills & Utilities,1461.12,expense
+2026-06-09,Water,Bills & Utilities,2108.88,expense
+2026-06-18,Internet,Bills & Utilities,1818.9,expense
+2026-06-03,Pharmacy,Health,256.36,expense
+2026-06-03,Cinema,Entertainment,544.99,expense
+2026-06-12,Cinema,Entertainment,277.01,expense
+2026-06-03,School supplies,Education,934.52,expense
+2026-06-05,Sample income,Income,16311.0,income
+2026-06-20,Sample income,Income,16120.0,income
+2026-07-04,Lunch,Food & Drinks,658.63,expense
+2026-07-09,Lunch,Food & Drinks,537.33,expense
+2026-07-20,Coffee,Food & Drinks,760.09,expense
+2026-07-23,Groceries,Food & Drinks,1062.29,expense
+2026-07-01,Lunch,Food & Drinks,252.25,expense
+2026-07-05,Coffee,Food & Drinks,253.33,expense
+2026-07-08,Fuel,Transportation,205.49,expense
+2026-07-11,Jeepney / Bus,Transportation,80.43,expense
+2026-07-17,Ride booking,Transportation,398.34,expense
+2026-07-22,Ride booking,Transportation,189.98,expense
+2026-07-01,Fuel,Transportation,474.5,expense
+2026-07-03,Household items,Shopping,815.35,expense
+2026-07-14,Clothing,Shopping,477.81,expense
+2026-07-05,Internet,Bills & Utilities,703.03,expense
+2026-07-14,Electricity,Bills & Utilities,2276.62,expense
+2026-07-19,Water,Bills & Utilities,1543.95,expense
+2026-07-08,Health essentials,Health,605.14,expense
+2026-07-07,Cinema,Entertainment,172.97,expense
+2026-07-13,Streaming,Entertainment,452.51,expense
+2026-07-06,Books,Education,855.77,expense
+2026-07-05,Sample income,Income,16339.0,income
+2026-07-20,Sample income,Income,16059.0,income
+2026-08-04,Dinner,Food & Drinks,826.7,expense
+2026-08-13,Lunch,Food & Drinks,567.81,expense
+2026-08-18,Groceries,Food & Drinks,433.31,expense
+2026-08-22,Coffee,Food & Drinks,536.76,expense
+2026-08-29,Dinner,Food & Drinks,373.62,expense
+2026-08-02,Coffee,Food & Drinks,409.51,expense
+2026-08-08,Ride booking,Transportation,109.81,expense
+2026-08-10,Jeepney / Bus,Transportation,215.64,expense
+2026-08-15,Fuel,Transportation,169.73,expense
+2026-08-21,Fuel,Transportation,408.44,expense
+2026-08-29,Fuel,Transportation,139.71,expense
+2026-08-04,Clothing,Shopping,785.64,expense
+2026-08-11,Household items,Shopping,1204.99,expense
+2026-08-07,Internet,Bills & Utilities,1681.44,expense
+2026-08-13,Internet,Bills & Utilities,1963.88,expense
+2026-08-18,Internet,Bills & Utilities,1351.69,expense
+2026-08-06,Health essentials,Health,299.2,expense
+2026-08-04,Streaming,Entertainment,387.93,expense
+2026-08-13,Cinema,Entertainment,466.38,expense
+2026-08-06,Books,Education,754.34,expense
+2026-08-05,Sample income,Income,16502.0,income
+2026-08-20,Sample income,Income,16371.0,income
+2026-09-08,Groceries,Food & Drinks,377.25,expense
+2026-09-14,Coffee,Food & Drinks,548.63,expense
+2026-09-17,Coffee,Food & Drinks,231.75,expense
+2026-09-25,Lunch,Food & Drinks,696.49,expense
+2026-09-29,Coffee,Food & Drinks,326.47,expense
+2026-09-05,Coffee,Food & Drinks,1000.31,expense
+2026-09-07,Ride booking,Transportation,336.81,expense
+2026-09-10,Fuel,Transportation,263.65,expense
+2026-09-19,Fuel,Transportation,185.18,expense
+2026-09-23,Ride booking,Transportation,162.72,expense
+2026-09-27,Fuel,Transportation,339.62,expense
+2026-09-07,Clothing,Shopping,369.47,expense
+2026-09-12,Clothing,Shopping,716.81,expense
+2026-09-06,Internet,Bills & Utilities,958.67,expense
+2026-09-14,Water,Bills & Utilities,2397.98,expense
+2026-09-17,Electricity,Bills & Utilities,1090.32,expense
+2026-09-05,Health essentials,Health,599.08,expense
+2026-09-04,Streaming,Entertainment,159.15,expense
+2026-09-09,Streaming,Entertainment,306.95,expense
+2026-09-08,Books,Education,551.43,expense
+2026-09-05,Sample income,Income,16521.0,income
+2026-09-20,Sample income,Income,16466.0,income
+2026-10-05,Groceries,Food & Drinks,482.69,expense
+2026-10-12,Groceries,Food & Drinks,888.13,expense
+2026-10-15,Dinner,Food & Drinks,592.24,expense
+2026-10-25,Groceries,Food & Drinks,1084.91,expense
+2026-10-01,Dinner,Food & Drinks,926.68,expense
+2026-10-02,Groceries,Food & Drinks,608.38,expense
+2026-10-06,Ride booking,Transportation,190.16,expense
+2026-10-11,Ride booking,Transportation,442.81,expense
+2026-10-15,Fuel,Transportation,225.35,expense
+2026-10-23,Jeepney / Bus,Transportation,182.72,expense
+2026-10-30,Jeepney / Bus,Transportation,278.03,expense
+2026-10-04,Household items,Shopping,491.3,expense
+2026-10-10,Household items,Shopping,667.65,expense
+2026-10-03,Water,Bills & Utilities,1987.52,expense
+2026-10-13,Water,Bills & Utilities,1881.0,expense
+2026-10-19,Electricity,Bills & Utilities,1258.07,expense
+2026-10-04,Health essentials,Health,380.59,expense
+2026-10-04,Streaming,Entertainment,185.12,expense
+2026-10-09,Cinema,Entertainment,473.23,expense
+2026-10-05,Books,Education,627.05,expense
+2026-10-05,Sample income,Income,16390.0,income
+2026-10-20,Sample income,Income,16015.0,income

@@ -1,0 +1,15 @@
+# Local Python environment and generated files
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.DS_Store
+
+# Never commit real financial records or secrets
+*.sqlite3
+*.sqlite3-*
+*.db
+.env
+.env.*
+!.env.example

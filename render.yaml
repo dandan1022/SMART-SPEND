@@ -1,0 +1,21 @@
+# Optional: deploy as a Render Blueprint (New -> Blueprint).
+# The free instance has EPHEMERAL storage: the SQLite database can reset.
+services:
+  - type: web
+    name: smart-spend
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python server.py
+    healthCheckPath: /api/health
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: SMARTSPEND_TZ
+        value: Asia/Manila
+      - key: SMARTSPEND_SECURE_COOKIE
+        value: "1"
+      - key: SMARTSPEND_ADMIN_EMAIL
+        value: admin@smartspend.local
+      - key: SMARTSPEND_ADMIN_PASSWORD
+        sync: false
