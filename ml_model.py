@@ -1,8 +1,12 @@
-"""Time-ordered monthly expense forecasting; no fabricated model scores."""
+"""Honest monthly/weekly forecasting with a useful early-history fallback.
+
+Three complete months / six complete weeks permit a low-confidence trend estimate.
+ML is evaluated only with enough examples to reserve an untouched time holdout.
+"""
 from __future__ import annotations
 
 import math
-from datetime import date
+from datetime import date, timedelta
 
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
@@ -13,7 +17,7 @@ from sklearn.preprocessing import StandardScaler
 
 
 class InsufficientHistory(ValueError):
-    def __init__(self, message, available=0, needed=12):
+    def __init__(self, message, available=0, needed=3):
         super().__init__(message)
         self.available = available
         self.needed = needed
@@ -29,113 +33,171 @@ def preceding_month(month: str) -> str:
     return f'{year - (m == 1):04d}-{12 if m == 1 else m - 1:02d}'
 
 
-def features(values, target_month):
-    """All input features refer to MONTHS BEFORE the target month."""
-    a, b, c = [float(x) for x in values[-3:]]  # oldest, middle, latest
-    month_number = int(target_month.split('-')[1])
-    return [c, b, a, (a+b+c)/3, (c-a)/2,
-            math.sin(2*math.pi*month_number/12), math.cos(2*math.pi*month_number/12)]
+def week_start(day: date) -> date:
+    return day - timedelta(days=day.weekday())
 
 
-def fit_and_forecast(expense_rows: list[dict], today: date | None = None):
-    """Train only on complete historical months; forecast the next calendar month.
+def advance(period: str, key: str) -> str:
+    if period == 'monthly':
+        return following_month(key)
+    return (date.fromisoformat(key) + timedelta(days=7)).isoformat()
 
-    expense_rows contains {'date': ISO date, 'amount_cents': integer}.
-    If the current month is partial, forecasting recursively covers it before next month.
+
+def retreat(period: str, key: str) -> str:
+    if period == 'monthly':
+        return preceding_month(key)
+    return (date.fromisoformat(key) - timedelta(days=7)).isoformat()
+
+
+def lag_features(values, target, period):
+    """Only prior observed/predicted periods become inputs, never the target."""
+    a, b, c = [float(x) for x in values[-3:]]
+    if period == 'monthly':
+        seasonal = int(target[5:7]) / 12
+    else:
+        seasonal = date.fromisoformat(target).timetuple().tm_yday / 365.25
+    return [c, b, a, (a + b + c) / 3, (c - a) / 2,
+            math.sin(2 * math.pi * seasonal), math.cos(2 * math.pi * seasonal)]
+
+
+def simple_forecast(values):
+    """Robust conservative trend: recency-weighted mean with a capped change."""
+    recent = values[-3:]
+    weighted = 0.2 * recent[0] + 0.3 * recent[1] + 0.5 * recent[2]
+    change = (recent[-1] - recent[0]) / 2
+    correction = max(-0.15 * weighted, min(0.15 * weighted, change * 0.2))
+    return max(0., float(weighted + correction))
+
+
+def fit_and_forecast(expense_rows: list[dict], today: date | None = None, period='monthly'):
+    """Forecast next calendar month / next full Mon-Sun week.
+
+    Only complete periods are used; missing periods are NOT treated as zero.
+    Latest contiguous history is used, so older isolated records don't break training.
     """
+    if period not in ('weekly', 'monthly'):
+        raise ValueError('Period must be weekly or monthly.')
     today = today or date.today()
-    current_month = today.strftime('%Y-%m')
-    last_complete = preceding_month(current_month)
-    monthly = {}
-    for r in expense_rows:
-        month = str(r['date'])[:7]
-        if month <= last_complete:
-            monthly[month] = monthly.get(month, 0) + int(r['amount_cents']) / 100
+    if period == 'monthly':
+        last_complete = preceding_month(today.strftime('%Y-%m'))
+        current = today.strftime('%Y-%m')
+        target = following_month(current)
+        minimum = 3
+        ml_min = 12
+        period_name = 'months'
+    else:
+        current = week_start(today).isoformat()
+        last_complete = retreat('weekly', current)
+        target = advance('weekly', current)
+        minimum = 6
+        ml_min = 14
+        period_name = 'weeks'
 
-    if not monthly:
-        raise InsufficientHistory('Add at least 12 consecutive complete months of expense records before training.', 0)
-    months = []
-    cursor = min(monthly)
-    while cursor <= last_complete:
-        months.append(cursor)
-        cursor = following_month(cursor)
-        if len(months) > 2400:
-            raise ValueError('Date range is too long.')
-    missing = [m for m in months if m not in monthly]
-    if missing:
-        raise InsufficientHistory(
-            'Training requires consecutive complete months. Missing expense records for: '
-            + ', '.join(missing[:5]) + ('…' if len(missing)>5 else '')
-            + '. Record those months or use the clearly labeled sample data.',
-            len(months)-len(missing), 12,
-        )
-    if len(months) < 12:
-        raise InsufficientHistory(
-            f'{len(months)} complete months recorded. At least 12 consecutive complete months are required.',
-            len(months), 12,
-        )
-    totals = [monthly[m] for m in months]
-    X = np.array([features(totals[i-3:i], months[i]) for i in range(3,len(months))])
-    y = np.array(totals[3:])
-    test_n = max(2, math.ceil(len(y)*0.25))
-    X_train, X_test = X[:-test_n], X[-test_n:]
-    y_train, y_test = y[:-test_n], y[-test_n:]
-    if len(X_train) < 6:
-        raise InsufficientHistory('Add more complete months to create a meaningful training set.', len(months), 12)
+    totals_by_period = {}
+    for row in expense_rows:
+        d = date.fromisoformat(str(row['date']))
+        key = d.strftime('%Y-%m') if period == 'monthly' else week_start(d).isoformat()
+        if key <= last_complete:
+            totals_by_period[key] = totals_by_period.get(key, 0) + int(row['amount_cents']) / 100
 
-    candidates = {
-        'Ridge Regression': make_pipeline(StandardScaler(), Ridge(alpha=15.0)),
-        'Random Forest': RandomForestRegressor(n_estimators=120, max_depth=5,
-                                               min_samples_leaf=2, random_state=42),
-    }
+    contiguous = []
+    cursor = last_complete
+    while cursor in totals_by_period and len(contiguous) < 260:
+        contiguous.append(cursor)
+        cursor = retreat(period, cursor)
+    contiguous.reverse()
+    if len(contiguous) < minimum:
+        raise InsufficientHistory(
+            f'{len(contiguous)} consecutive complete {period_name} recorded (ending {last_complete}). '
+            f'Add expense transactions or manual totals for at least {minimum} consecutive completed {period_name}. '
+            'An unfinished current period is excluded; missing periods are not assumed to be zero.',
+            len(contiguous), minimum,
+        )
+
+    values = [totals_by_period[k] for k in contiguous]
     reports = []
-    for name, model in candidates.items():
-        model.fit(X_train, y_train)
-        preds = np.maximum(model.predict(X_test), 0)
-        reports.append({
-            'model': name,
-            'mae': round(float(mean_absolute_error(y_test, preds)), 2),
-            'rmse': round(float(np.sqrt(mean_squared_error(y_test, preds))), 2),
-            'r2': round(float(r2_score(y_test,preds)), 3),
-        })
-    naive = X_test[:, 0]
-    baseline = {
-        'model': 'Last Month Baseline',
-        'mae': round(float(mean_absolute_error(y_test,naive)), 2),
-        'rmse': round(float(np.sqrt(mean_squared_error(y_test,naive))), 2),
-        'r2': round(float(r2_score(y_test,naive)), 3),
-    }
-    reports.append(baseline)
-    # Compare fixed models on one chronological holdout. No repeated tuning on test data.
-    best = min(reports[:2], key=lambda x: x['mae'])
-    winner = candidates[best['model']]
-    winner.fit(X,y)  # only after evaluation, retrain on all completed historical months
+    selected = 'Recency-weighted trend (early estimate)'
+    stage = 'early'
+    train_samples = test_samples = 0
 
-    working = totals[:]
-    projected_current = None
-    forecast_month = following_month(current_month)
-    cursor = following_month(last_complete)
-    while cursor <= forecast_month:
-        pred = max(0., float(winner.predict(np.asarray([features(working[-3:],cursor)]))[0]))
-        working.append(pred)
-        if cursor == current_month:
-            projected_current = pred
-        cursor = following_month(cursor)
+    if len(values) >= ml_min:
+        X = np.asarray([lag_features(values[i-3:i], contiguous[i], period)
+                        for i in range(3, len(values))], dtype=float)
+        y = np.asarray(values[3:], dtype=float)
+        test_samples = max(2, math.ceil(len(y) * .25))
+        X_train, X_test = X[:-test_samples], X[-test_samples:]
+        y_train, y_test = y[:-test_samples], y[-test_samples:]
+        train_samples = len(X_train)
+        models = {
+            'Ridge Regression': make_pipeline(StandardScaler(), Ridge(alpha=15.0)),
+            'Random Forest': RandomForestRegressor(n_estimators=120, max_depth=5,
+                                                   min_samples_leaf=2, random_state=42),
+        }
+        for name, model in models.items():
+            model.fit(X_train, y_train)
+            predicted = np.maximum(model.predict(X_test), 0)
+            reports.append((name, predicted))
+        reports.append(('Last-period baseline', np.maximum(X_test[:, 0], 0)))
+        evaluation = []
+        for name, predicted in reports:
+            evaluation.append({
+                'model': name,
+                'mae': round(float(mean_absolute_error(y_test, predicted)), 2),
+                'rmse': round(float(np.sqrt(mean_squared_error(y_test, predicted))), 2),
+                'r2': round(float(r2_score(y_test, predicted)), 3) if len(y_test) > 1 else None,
+            })
+        selected = min(evaluation, key=lambda x: x['mae'])['model']
+        if selected in models:
+            fitted = models[selected]
+            fitted.fit(X, y)
+            def forecast_one(history, key):
+                return max(0., float(fitted.predict(np.asarray([lag_features(history[-3:], key, period)]))[0]))
+        else:
+            def forecast_one(history, key):
+                return max(0., float(history[-1]))
+        reports = evaluation
+        stage = 'evaluated'
+    else:
+        def forecast_one(history, key):
+            return simple_forecast(history)
 
-    result = {
-        'forecast_month': forecast_month,
+    # An incomplete current month/week is projected before the upcoming period.
+    working = values[:]
+    current_projection = None
+    pointer = advance(period, last_complete)
+    while pointer <= target:
+        prediction = forecast_one(working, pointer)
+        working.append(prediction)
+        if pointer == current:
+            current_projection = prediction
+        pointer = advance(period, pointer)
+
+    warning = ('Limited history: this is a recency-weighted trend estimate, NOT a trained or '
+               'validated machine-learning prediction. It has no measured accuracy score. '
+               'Record more complete periods for model evaluation. '
+               if stage == 'early' else
+               'Models and a last-period baseline were compared on a later chronological test set. '
+               'Past error does not guarantee future accuracy. ')
+    warning += ('The current incomplete period is estimated before forecasting the next period. '
+                'Missing spending and unexpected changes can alter the result. '
+                'Manually entered period totals must not overlap detailed transactions.')
+    return {
+        'period_type': period,
+        'forecast_month': target,  # legacy database column; week forecasts store YYYY-MM-DD
+        'forecast_period': target,
         'predicted_amount': round(working[-1], 2),
-        'current_month_projection': round(projected_current, 2) if projected_current is not None else None,
-        'selected_model': best['model'],
+        'current_period_projection': round(current_projection, 2) if current_projection is not None else None,
+        'selected_model': selected,
+        'prediction_stage': stage,
+        'confidence_label': 'Limited history' if stage == 'early' else 'Measured historical holdout',
         'evaluation': reports,
-        'train_samples': len(X_train),
-        'test_samples': len(X_test),
-        'history_months': len(months),
-        'history_start': months[0],
-        'history_end': months[-1],
-        'selection_metric': 'Lowest MAE among the two ML algorithms on one chronological holdout',
-        'warning': ('Forecasts are estimates, not guarantees. A next-month forecast uses a recursive '
-                    'projection for the still-incomplete current month; missing real-world expenses '
-                    'and future changes can make the forecast inaccurate.'),
+        'train_samples': train_samples,
+        'test_samples': test_samples,
+        'history_periods': len(contiguous),
+        'history_months': len(contiguous) if period == 'monthly' else 0,
+        'history_start': contiguous[0],
+        'history_end': contiguous[-1],
+        'selection_metric': ('No model comparison with limited history' if stage == 'early'
+                             else 'Lowest MAE across Ridge, Random Forest and last-period baseline on a chronological holdout'),
+        'warning': warning,
     }
-    return result

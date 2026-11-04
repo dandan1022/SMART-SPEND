@@ -26,7 +26,7 @@ from zoneinfo import ZoneInfo
 
 from database import get_db, setup
 from demo_data import CATEGORIES, sample_rows
-from ml_model import InsufficientHistory, fit_and_forecast, preceding_month, following_month
+from ml_model import InsufficientHistory, fit_and_forecast, preceding_month, following_month, week_start
 
 ROOT = Path(__file__).resolve().parent
 STATIC = ROOT / 'static'
@@ -111,6 +111,60 @@ def validate_transaction(payload, source='manual'):
         'amount_cents': parse_money(payload.get('amount')),
         'source': source,
     }
+
+
+def manual_period_bounds(payload):
+    """Store a single clearly marked total as a transaction; disallow overlaps."""
+    period = str(payload.get('period', 'monthly')).lower()
+    if period == 'monthly':
+        month = iso_month(payload.get('month', ''))
+        try:start = date.fromisoformat(month + '-01')
+        except ValueError:raise ApiError(400,'Enter a valid calendar month.')
+        from calendar import monthrange
+        end = date(start.year, start.month, monthrange(start.year, start.month)[1])
+        label = f'Monthly expense total · {month}'
+        source = 'monthly_summary'
+    elif period == 'weekly':
+        picked = date.fromisoformat(validate_date(payload.get('date', '')))
+        start = week_start(picked)
+        end = start + timedelta(days=6)
+        label = f'Weekly expense total · {start.isoformat()}'
+        source = 'weekly_summary'
+    else:
+        raise ApiError(400, 'Choose weekly or monthly history.')
+    if end >= local_today():
+        raise ApiError(400, 'Choose a fully completed week or month; the current period is still in progress.')
+    if start.year < 2000:
+        raise ApiError(400, 'History must be from year 2000 onward.')
+    return start.isoformat(), end.isoformat(), label, source
+
+
+def summary_interval(day, source):
+    """Expand a stored summary's end date to the real covered date interval."""
+    d = date.fromisoformat(day)
+    if source == 'monthly_summary':
+        return d.replace(day=1), d
+    if source == 'weekly_summary':
+        return d - timedelta(days=6), d
+    return d, d
+
+
+def overlapping_expenses(conn, user_id, first, last):
+    """Find expenses that cover any part of an interval, even cross-month weeks."""
+    start = date.fromisoformat(first)
+    end = date.fromisoformat(last)
+    # Include all summaries, including ones with a Sunday after the period end.
+    rows = conn.execute("""SELECT id,date,source FROM transactions
+                           WHERE user_id=? AND kind='expense' AND date>=?""",
+                        (user_id,(start-timedelta(days=31)).isoformat())).fetchall()
+    return [row for row in rows
+            if (lambda a,b: a <= end and b >= start)(*summary_interval(row['date'],row['source']))]
+
+
+def check_summary_overlap(conn, user_id, day, ignored_id=None):
+    for row in overlapping_expenses(conn,user_id,day,day):
+        if row['source'] in ('monthly_summary','weekly_summary') and row['id'] != ignored_id:
+            raise ApiError(409, 'This date is covered by a manually entered total. Delete the summary first to avoid double counting.')
 
 
 def safe_user(row):
@@ -208,9 +262,20 @@ def compute_analytics(conn,user_id,month):
     }
 
 
+def load_weekly_counts(conn, user_id):
+    completed=week_start(local_today())
+    rows=conn.execute("SELECT date,amount_cents FROM transactions WHERE user_id=? AND kind=? AND source!='monthly_summary' AND date<?",
+                      (user_id,'expense',completed.isoformat())).fetchall()
+    totals=Counter()
+    for r in rows:
+        monday=week_start(date.fromisoformat(r['date'])).isoformat()
+        totals[monday]+=r['amount_cents']
+    return [{'week':k,'total':v} for k,v in sorted(totals.items())]
+
+
 def load_monthly_counts(conn,user_id):
     result=conn.execute('''SELECT substr(date,1,7) AS month, SUM(amount_cents) total
-                           FROM transactions WHERE user_id=? AND kind='expense'
+                           FROM transactions WHERE user_id=? AND kind='expense' AND source!='weekly_summary'
                            AND date < ? GROUP BY month ORDER BY month''',
                         (user_id,local_today().strftime('%Y-%m')+'-01')).fetchall()
     return [dict(r) for r in result]
@@ -350,6 +415,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.transaction_list(conn,uid,params)
             if path=='/api/transactions' and method=='POST':
                 tx=validate_transaction(self.payload())
+                if tx['kind']=='expense':check_summary_overlap(conn,uid,tx['date'])
                 cursor=conn.execute('''INSERT INTO transactions(user_id,date,description,category,kind,amount_cents,source)
                                     VALUES (?,?,?,?,?,?,?)''',
                                     (uid,tx['date'],tx['description'],tx['category'],tx['kind'],tx['amount_cents'],tx['source']))
@@ -363,6 +429,8 @@ class Handler(BaseHTTPRequestHandler):
                 if method=='DELETE':
                     conn.execute('DELETE FROM transactions WHERE id=? AND user_id=?',(txid,uid))
                 else:
+                    if current['source'] in ('monthly_summary','weekly_summary'):
+                        raise ApiError(400,'To update a period total, use Add past spending. You can delete it here.')
                     data=self.payload()
                     merged={'date':data.get('date',current['date']),
                             'description':data.get('description',current['description']),
@@ -370,6 +438,8 @@ class Handler(BaseHTTPRequestHandler):
                             'type':data.get('type',current['kind']),
                             'amount':data.get('amount',current['amount_cents']/100)}
                     tx=validate_transaction(merged,current['source'])
+                    if tx['kind']=='expense' and current['source'] not in ('monthly_summary','weekly_summary'):
+                        check_summary_overlap(conn,uid,tx['date'],txid)
                     conn.execute('''UPDATE transactions SET date=?,description=?,category=?,kind=?,amount_cents=?
                                    WHERE id=? AND user_id=?''',
                                  (tx['date'],tx['description'],tx['category'],tx['kind'],tx['amount_cents'],txid,uid))
@@ -386,17 +456,42 @@ class Handler(BaseHTTPRequestHandler):
                              (uid,month,int(round(amount*100))))
                 conn.commit()
                 return self.json(200,{'ok':True})
+            if path=='/api/history/manual' and method=='POST':
+                data=self.payload()
+                first,last,label,source=manual_period_bounds(data)
+                cents=parse_money(data.get('amount'))
+                overlapping=overlapping_expenses(conn,uid,first,last)
+                same=[r for r in overlapping if r['source']==source]
+                if len(overlapping)>1 or (overlapping and not same):
+                    raise ApiError(409, 'This period already contains expense records or another summary. '
+                                         'To avoid double counting, use your existing transactions or delete them before entering a period total.')
+                if same:
+                    conn.execute('''UPDATE transactions SET date=?,amount_cents=?,description=?,category=?
+                        WHERE id=? AND user_id=?''',(last,cents,label,'Other',same[0]['id'],uid))
+                    record_id=same[0]['id']; status=200
+                else:
+                    c=conn.execute('''INSERT INTO transactions(user_id,date,description,category,kind,amount_cents,source)
+                        VALUES (?,?,?,?,?,?,?)''',(uid,last,label,'Other','expense',cents,source))
+                    record_id=c.lastrowid; status=201
+                conn.commit()
+                return self.json(status,{'ok':True,'id':record_id,'period_start':first,
+                                         'period_end':last,'updated':bool(same)})
             if path=='/api/predict' and method=='POST':
-                rows=conn.execute('SELECT date,amount_cents FROM transactions WHERE user_id=? AND kind=?',
-                                  (uid,'expense')).fetchall()
-                try:result=fit_and_forecast([dict(r) for r in rows],today=local_today())
+                period=self.payload().get('period','monthly')
+                if period not in ('monthly','weekly'):
+                    raise ApiError(400,'Choose weekly or monthly forecast.')
+                excluded='monthly_summary' if period=='weekly' else 'weekly_summary'
+                rows=conn.execute('SELECT date,amount_cents FROM transactions WHERE user_id=? AND kind=? AND source!=?',
+                                  (uid,'expense',excluded)).fetchall()
+                try:result=fit_and_forecast([dict(r) for r in rows],today=local_today(),period=period)
                 except InsufficientHistory as e:
                     raise ApiError(422,str(e),months_available=e.available,months_required=e.needed)
-                selected=next(x for x in result['evaluation'] if x['model']==result['selected_model'])
+                selected=next((x for x in result['evaluation'] if x['model']==result['selected_model']), None)
                 cursor=conn.execute('''INSERT INTO predictions(user_id,forecast_month,predicted_cents,model,mae,rmse,metadata_json)
                                        VALUES (?,?,?,?,?,?,?)''',
                                     (uid,result['forecast_month'],int(round(result['predicted_amount']*100)),
-                                     result['selected_model'],selected['mae'],selected['rmse'],json.dumps(result)))
+                                     result['selected_model'],selected['mae'] if selected else -1,
+                                     selected['rmse'] if selected else -1,json.dumps(result)))
                 conn.commit()
                 return self.json(201,{'ok':True,'id':cursor.lastrowid,**result})
             if path=='/api/predictions' and method=='GET':
@@ -405,7 +500,8 @@ class Handler(BaseHTTPRequestHandler):
                 for r in rows:
                     d=json.loads(r['metadata_json']);d['id']=r['id'];d['created_at']=r['created_at']
                     entries.append(d)
-                return self.json(200,{'predictions':entries,'month_coverage':load_monthly_counts(conn,uid)})
+                return self.json(200,{'predictions':entries,'month_coverage':load_monthly_counts(conn,uid),
+                                      'week_coverage':load_weekly_counts(conn,uid)})
             if path=='/api/datasets/info' and method=='GET':
                 count=conn.execute('SELECT COUNT(*) c FROM transactions WHERE user_id=?',(uid,)).fetchone()['c']
                 logs=conn.execute('SELECT * FROM imports WHERE user_id=? ORDER BY id DESC LIMIT 8',(uid,)).fetchall()
@@ -419,6 +515,8 @@ class Handler(BaseHTTPRequestHandler):
                 if conn.execute("SELECT 1 FROM transactions WHERE user_id=? AND source='sample' LIMIT 1",(uid,)).fetchone():
                     raise ApiError(409,'Sample data has already been added to this account. Remove sample transactions before loading it again.')
                 rows=sample_rows(today=local_today())
+                for r in rows:
+                    if r['kind']=='expense':check_summary_overlap(conn,uid,r['date'])
                 conn.executemany('''INSERT INTO transactions(user_id,date,description,category,kind,amount_cents,source)
                                     VALUES (?,?,?,?,?,?,?)''',
                                  [(uid,r['date'],r['description'],r['category'],r['kind'],r['amount_cents'],'sample') for r in rows])
@@ -498,6 +596,10 @@ class Handler(BaseHTTPRequestHandler):
                                  AND category=? AND kind=? AND amount_cents=? LIMIT 1''',
                              (uid,*key)).fetchone()
             if old:duplicate+=1;continue
+            if tx['kind']=='expense':
+                try:check_summary_overlap(conn,uid,tx['date'])
+                except ApiError:
+                    invalid+=1;continue
             if tx['amount_cents']>10000000:outlier+=1  # > ₱100,000, flagged, still retained
             conn.execute('''INSERT INTO transactions(user_id,date,description,category,kind,amount_cents,source)
                             VALUES (?,?,?,?,?,?,?)''',
@@ -525,7 +627,8 @@ class Handler(BaseHTTPRequestHandler):
                                  'amount_php','source','created_at']),
                 'predictions':('''SELECT p.id,p.user_id,u.email,p.forecast_month,
                                         ROUND(p.predicted_cents/100.0,2) AS predicted_php,
-                                        p.model,p.mae,p.rmse,p.created_at
+                                        p.model,CASE WHEN p.mae<0 THEN NULL ELSE p.mae END AS mae,
+                                        CASE WHEN p.rmse<0 THEN NULL ELSE p.rmse END AS rmse,p.created_at
                                  FROM predictions p JOIN users u ON u.id=p.user_id ORDER BY p.id''',
                                ['id','user_id','email','forecast_month','predicted_php','model','mae','rmse','created_at']),
                 'imports':('''SELECT i.id,i.user_id,u.email,i.filename,i.imported,i.duplicates,
@@ -572,7 +675,8 @@ class Handler(BaseHTTPRequestHandler):
                                  JOIN users u ON p.user_id=u.id ORDER BY p.id DESC LIMIT 100''').fetchall()
             return self.json(200,{'predictions':[{'id':r['id'],'user':r['user_name'],'email':r['user_email'],
                             'forecast_month':r['forecast_month'],'prediction':round(r['predicted_cents']/100,2),
-                            'model':r['model'],'mae':r['mae'],'rmse':r['rmse'],
+                            'model':r['model'],'mae':r['mae'] if r['mae']>=0 else None,
+                            'rmse':r['rmse'] if r['rmse']>=0 else None,
                             'created_at':r['created_at']} for r in rows]})
         if path=='/api/admin/imports':
             rows=conn.execute('''SELECT i.*,u.name user_name FROM imports i JOIN users u ON i.user_id=u.id

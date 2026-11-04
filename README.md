@@ -1,5 +1,5 @@
 # Smart Spend
-**Machine Learning-Powered Personal Monthly Expense Predictor**
+**Machine Learning-Powered Personal Monthly & Weekly Expense Predictor**
 
 Responsive Python website with user registration/login, expense management, spending analytics, machine-learning forecasts, and a **read-only admin database dashboard**.
 
@@ -40,22 +40,23 @@ Open **http://localhost:8000**. The database (`smartspend.sqlite3`) is created a
 
 ## Features and required academic functionality
 - **Accounts:** register, log in, log out, update user settings; server-side administrator role and access control.
-- **Expense tracking:** add, edit, delete, filter, and export transactions; PHP currency; user-chosen monthly budget (no automatic suggested amount).
-- **Datasets:** import CSV, handle missing categories, normalize categories, flag high-value outliers, discard invalid/duplicate rows; view import statistics.
+- **Expense tracking:** add, edit, delete, filter, and export individual transactions; PHP currency; user-chosen monthly budget (no automatic suggested amount).
+- **Manual history:** on **Datasets → Enter a total**, type a completed calendar month’s total or completed Monday–Sunday week’s total; no spreadsheet needed. Summary entries show in Transactions and can be updated through the same form or deleted from Transactions. Entries cannot overlap existing expenses or period totals (prevents double counting). You can also add normal daily expense transactions manually.
+- **Datasets:** optional CSV import, handle missing categories, normalize categories, flag high-value outliers, discard invalid/duplicate rows; view import statistics.
 - **Exploratory analysis:** monthly spending trend, category doughnut chart, category comparison bars, daily activity chart, descriptive statistics.
-- **Prediction:** Ridge Regression and Random Forest trained with scikit-learn; evaluates them against a previous-month baseline using a chronological holdout with MAE, RMSE, and R²; forecasts next month's expenses.
+- **Prediction:** Choose **Monthly** or **Weekly** in AI Predictor. At least **3 consecutive completed months** or **6 consecutive completed weeks** enable a **clearly labeled, low-confidence early trend estimate**; this is not trained ML and has no fabricated accuracy score. With **12 completed months** or **14 completed weeks**, Ridge Regression, Random Forest, and a last-period baseline are compared on a chronological holdout using MAE, RMSE, and R². The method with the lowest holdout MAE is used to forecast the next month or next full week.
 - **Administrator:** read-only overview of accounts, transactions, imports and ML predictions; CSV exports.
 - **Privacy:** passwords are hashed; user records are isolated by account; admin views financial records as part of its project role.
 
 ### Dataset
-The optional `sample_data/demo_transactions.csv` contains **fictional** example records and is accompanied by `sample_data/DATA_DICTIONARY.md`. The website also has a **Load fictional demo data** button. Monthly budgets are never automatically filled in: each user sets a budget for each month using the **Set my budget** control on Overview. Until they do, the dashboard shows **Not set** and does not invent a remaining balance. The ML algorithm needs **at least 12 consecutive complete months** of expense history to run.
+The optional `sample_data/demo_transactions.csv` contains **fictional** example records and is accompanied by `sample_data/DATA_DICTIONARY.md`. The website also has a **Load fictional demo data** button. Monthly budgets are never automatically filled in: each user sets a budget for each month using the **Set my budget** control on Overview. Until they do, the dashboard shows **Not set** and does not invent a remaining balance. Only **3 consecutive completed months** or **6 consecutive completed weeks** are needed for an early estimate. For trained/evaluated ML, supply **12 completed months** or **14 completed weeks**, respectively. More consistent and representative data may improve reliability but accuracy is not guaranteed.
 
 CSV columns: `date`, `description`, `amount`; optional: `category`, `type` (`expense` or `income`).
 
 ### ML methodology and limitations
-Historical expenses are grouped by *completed calendar month*; features include the previous three months' totals, rolling average, recent trend, and encoded seasonality. The last 25% of usable months are held out in chronological order to evaluate candidate regressors. The algorithm selects the better-performing ML candidate on test MAE and retrains it on available historical months to forecast the next calendar month, potentially recursively forecasting the incomplete current month first.
+Historical expenses are grouped by *completed calendar month* or *completed Monday–Sunday week*; incomplete periods and missing periods are not interpreted as zero. For limited data (3–11 months or 6–13 weeks), a recency-weighted average and capped trend provide an early estimate without pretending it was evaluated. With enough data, features from the preceding three periods, their rolling average, recent trend and seasonal encoding are used. The last ~25% of training examples are reserved as a chronological test set for a Ridge regressor, Random Forest, and an unchanged-last-period baseline. The method with the lowest MAE is used, refitting trained ML models on all completed data after evaluation. The current incomplete period is estimated recursively before forecasting the next calendar month/week.
 
-Forecasts are estimates, not guarantees. Very small or fictional datasets cannot establish real-world predictive accuracy; abrupt spending changes, emergencies, missing expenses and broader economic factors are not represented. The project should not be used for important financial decisions without independent verification. The full academic research report/presentation are **not** included.
+Forecasts are estimates, not guarantees, especially early estimates with 3 months / 6 weeks of history. Weekly totals and monthly totals are kept separate in forecasting to avoid combining incompatible summaries. Very small or fictional datasets cannot establish real-world predictive accuracy; abrupt spending changes, emergencies, missing expenses and broader economic factors are not represented. The project should not be used for important financial decisions without independent verification. The full academic research report/presentation are **not** included.
 
 ## Files
 ```
@@ -70,3 +71,6 @@ sample_data/             Documented fictional CSV sample dataset
 .gitignore               Excludes secrets, databases and temporary files
 README.md                Setup and project explanation
 ```
+
+### Update your existing Render deployment
+Push updated source files to the GitHub `main` branch. If auto-deploy is enabled for Render, it will rebuild the service automatically. Open the public `onrender.com` URL, reload, and use **Datasets → Enter a total** or **AI Predictor → Add history manually**. The SQLite database is unchanged in format and can read the existing accounts, although Render Free's ephemeral filesystem can still lose them on restart/redeploy.
