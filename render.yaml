@@ -16,6 +16,6 @@ services:
       - key: SMARTSPEND_SECURE_COOKIE
         value: "1"
       - key: SMARTSPEND_ADMIN_EMAIL
-        value: admin@smartspend.local
+        value: adminsmartspend@2026
       - key: SMARTSPEND_ADMIN_PASSWORD
         sync: false
