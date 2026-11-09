@@ -95,6 +95,18 @@ def normalize_category(s, kind='expense'):
     return aliases.get(str(s or '').strip().lower(), 'Other')
 
 
+def validate_new_password(password):
+    """Validate new passwords server-side, independent of browser checks."""
+    if not isinstance(password, str) or not 6 <= len(password) <= 128:
+        raise ApiError(400, 'Password must be 6–128 characters long.')
+    if not re.search(r'[A-Z]', password):
+        raise ApiError(400, 'Password must contain at least one uppercase letter.')
+    if not re.search(r'[0-9]', password):
+        raise ApiError(400, 'Password must contain at least one number.')
+    if not re.search(r'[^A-Za-z0-9\s]', password):
+        raise ApiError(400, 'Password must contain at least one special character.')
+
+
 def validate_transaction(payload, source='manual'):
     if not isinstance(payload,dict):
         raise ApiError(400,'Invalid transaction.')
@@ -363,7 +375,9 @@ class Handler(BaseHTTPRequestHandler):
                 if not 2<=len(name)<=70:raise ApiError(400,'Name must be 2–70 characters.')
                 if len(email)>160 or not re.fullmatch(r'[^@\s]+@[^@\s]+\.[^@\s]+',email):raise ApiError(400,'Enter a valid email.')
                 if email==ADMIN_EMAIL:raise ApiError(400,'This email is reserved.')
-                if not 8<=len(password)<=128:raise ApiError(400,'Password must contain 8–128 characters.')
+                validate_new_password(password)
+                if not hmac.compare_digest(password, str(data.get('confirm_password',''))):
+                    raise ApiError(400,'Passwords do not match.')
                 try:
                     cursor=conn.execute('INSERT INTO users(name,email,password_hash) VALUES (?,?,?)',
                                         (name,email,hashed_password(password)))
@@ -597,7 +611,7 @@ class Handler(BaseHTTPRequestHandler):
                     if not verify_password(str(data.get('current_password','')),current['password_hash']):
                         raise ApiError(403,'Current password is incorrect.')
                     password=str(data['new_password'])
-                    if not 8<=len(password)<=128:raise ApiError(400,'New password needs 8–128 characters.')
+                    validate_new_password(password)
                     conn.execute('UPDATE users SET name=?,password_hash=? WHERE id=?',
                                  (name,hashed_password(password),uid))
                 else:conn.execute('UPDATE users SET name=? WHERE id=?',(name,uid))

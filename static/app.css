@@ -50,3 +50,7 @@
 .history-breakdown-total strong{font-size:20px;color:#1f523f;font-weight:800}
 #history-total-field[hidden],#history-breakdown-field[hidden]{display:none}
 @media(max-width:440px){.history-mode-options{grid-template-columns:1fr}.history-breakdown-grid{grid-template-columns:1fr}.history-dialog .dialog-content{padding:20px}.history-breakdown-heading{align-items:flex-start;flex-direction:column;gap:4px}}
+
+/* Registration password requirements */
+.password-hint{margin:-9px 0 0;color:#638b72;font-size:11px;line-height:1.6;}
+.password-hint[hidden],#confirm-password-field[hidden]{display:none;}

@@ -74,3 +74,6 @@ README.md                Setup and project explanation
 
 ### Update your existing Render deployment
 Push updated source files to the GitHub `main` branch. If auto-deploy is enabled for Render, it will rebuild the service automatically. Open the public `onrender.com` URL, reload, and use **Datasets → Add past spending** or **AI Predictor → Add history manually**. The SQLite database is unchanged in format and can read the existing accounts, although Render Free's ephemeral filesystem can still lose them on restart/redeploy.
+
+## Account password policy
+New accounts must confirm their password and use at least 6 characters including an uppercase letter, a number and a special character. The server checks the same requirements. Existing accounts can still log in with their current passwords. New passwords set through account settings must also follow the policy.

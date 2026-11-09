@@ -49,7 +49,9 @@
    <form id="auth-form" class="form-stack" autocomplete="on">
     <label class="field" id="name-field" hidden><span>Full name</span><input name="name" type="text" autocomplete="name" placeholder="e.g. Alex Rivera" minlength="2" maxlength="70"></label>
     <label class="field"><span>Email address</span><input name="email" type="email" autocomplete="email" required placeholder="you@example.com"></label>
-    <label class="field"><span>Password</span><input name="password" type="password" autocomplete="current-password" required minlength="8" placeholder="Enter your password"></label>
+    <label class="field"><span>Password</span><input name="password" type="password" autocomplete="current-password" required minlength="6" placeholder="Enter your password"></label>
+    <p id="password-requirements" class="password-hint" hidden>Use at least 6 characters, including 1 uppercase letter, 1 number, and 1 special character.</p>
+    <label class="field" id="confirm-password-field" hidden><span>Confirm password</span><input name="confirm_password" type="password" autocomplete="new-password" minlength="6" placeholder="Re-enter your password"></label>
     <button class="btn btn-dark full" id="auth-submit" type="submit">Log in to Smart Spend <svg class="icon"><use href="#i-chevron"/></svg></button>
    </form>
    <p class="auth-footnote"><svg class="icon"><use href="#i-shield"/></svg> Your password is hashed before it is stored.</p>
