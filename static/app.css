@@ -54,3 +54,14 @@
 /* Registration password requirements */
 .password-hint{margin:-9px 0 0;color:#638b72;font-size:11px;line-height:1.6;}
 .password-hint[hidden],#confirm-password-field[hidden]{display:none;}
+
+/* Admin directory: searching and sorting */
+.admin-user-tools{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:20px 0 12px}
+.admin-user-search{display:flex;align-items:center;gap:9px;flex:1 1 280px;border:1px solid #dbe6da;border-radius:12px;padding:0 13px;background:#f9fbf8;min-height:44px;color:#648674}
+.admin-user-search .icon{width:18px;height:18px;flex-shrink:0}
+.admin-user-search input{border:0;background:transparent;min-width:0;width:100%;font:inherit;outline:none;color:#233f32}
+.admin-user-search:focus-within{outline:2px solid #82ac8b;outline-offset:1px}
+.admin-user-sort{display:flex;gap:8px;align-items:center;white-space:nowrap;font-size:12px;font-weight:650;color:#506e5d}
+.admin-user-sort select{height:44px;padding:0 28px 0 12px;border:1px solid #dbe6da;border-radius:12px;background:#f9fbf8;color:#233f32;font:inherit}
+.admin-user-count{font-size:12px;margin:4px 0 14px;color:#718b7b}
+@media(max-width:560px){.admin-user-tools{display:block}.admin-user-search{margin-bottom:10px}.admin-user-sort select{flex:1;min-width:0}}

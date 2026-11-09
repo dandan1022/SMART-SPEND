@@ -25,6 +25,10 @@ from urllib.parse import parse_qs, urlparse
 from zoneinfo import ZoneInfo
 
 from database import get_db, setup
+try:
+    from psycopg import IntegrityError as PostgresIntegrityError
+except ImportError:
+    PostgresIntegrityError = sqlite3.IntegrityError
 from demo_data import CATEGORIES, sample_rows
 from ml_model import InsufficientHistory, fit_and_forecast, preceding_month, following_month, week_start
 
@@ -381,7 +385,7 @@ class Handler(BaseHTTPRequestHandler):
                 try:
                     cursor=conn.execute('INSERT INTO users(name,email,password_hash) VALUES (?,?,?)',
                                         (name,email,hashed_password(password)))
-                except sqlite3.IntegrityError:raise ApiError(409,'An account with this email already exists.')
+                except (sqlite3.IntegrityError, PostgresIntegrityError):raise ApiError(409,'An account with this email already exists.')
                 cookie,csrf=self.set_session(conn,'user',cursor.lastrowid)
                 conn.commit()
                 return self.json(201,{'ok':True,'role':'user','csrf':csrf,'user':{'id':cursor.lastrowid,'name':name,'email':email}}, {'Set-Cookie':cookie})
@@ -720,7 +724,7 @@ class Handler(BaseHTTPRequestHandler):
                             ('transactions','SELECT COUNT(*) FROM transactions'),
                             ('predictions','SELECT COUNT(*) FROM predictions'),
                             ('imports','SELECT COUNT(*) FROM imports'),
-                            ('total_expenses','SELECT COALESCE(SUM(amount_cents),0) FROM transactions WHERE kind="expense"')]:
+                            ('total_expenses',"SELECT COALESCE(SUM(amount_cents),0) FROM transactions WHERE kind='expense'")]:
                 a[key]=conn.execute(sql).fetchone()[0]
             a['total_expenses']=round(a['total_expenses']/100,2)
             cats=conn.execute('''SELECT category,SUM(amount_cents) amount FROM transactions
@@ -732,8 +736,8 @@ class Handler(BaseHTTPRequestHandler):
                                   COUNT(t.id) transaction_count,
                                   COALESCE(SUM(CASE WHEN t.kind='expense' THEN t.amount_cents ELSE 0 END),0) spent
                                   FROM users u LEFT JOIN transactions t ON t.user_id=u.id
-                                  GROUP BY u.id ORDER BY u.id DESC LIMIT 300''').fetchall()
-            return self.json(200,{'users':[{'id':r['id'],'name':r['name'],'email':r['email'],
+                                  GROUP BY u.id ORDER BY u.id DESC''').fetchall()
+            return self.json(200,{'persistent_storage':bool(os.environ.get('DATABASE_URL')), 'users':[{'id':r['id'],'name':r['name'],'email':r['email'],
                                               'created_at':r['created_at'], 'transaction_count':r['transaction_count'],
                                               'spent':round(r['spent']/100,2)} for r in rows]})
         if path=='/api/admin/transactions':

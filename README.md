@@ -15,7 +15,20 @@ Responsive Python website with user registration/login, expense management, spen
 - Start command: `python server.py`
 - Environment: `HOST=0.0.0.0`, `SMARTSPEND_SECURE_COOKIE=1`, `SMARTSPEND_TZ=Asia/Manila`, `SMARTSPEND_ADMIN_EMAIL=admin@smartspend.local`, and **your private** `SMARTSPEND_ADMIN_PASSWORD`.
 
-**Important database warning:** This project uses local **SQLite**. Render Free has **ephemeral storage**. Accounts, transactions, and forecasts can disappear after restarts/redeploys. It is suitable for a short class demonstration with fictional data only. For real use, migrate the database to hosted persistent storage first, and harden account protections. SQLite is not hosted in Google Sheets. Never put real sensitive financial data into this demo.
+**Important database warning:** Without `DATABASE_URL`, the project uses **SQLite** on Render Free **ephemeral storage** and accounts, transactions, and forecasts can disappear after restarts/redeploys. Set up a persistent external PostgreSQL database before real use, and harden account protections. SQLite is not hosted in Google Sheets. Never put real sensitive financial data into this demo.
+
+
+## Persistent storage on Render Free (important)
+
+**Why accounts vanish:** Signing out removes only a login session. The app never deletes a user or transaction on logout. However, Render Free web services use an *ephemeral filesystem*: their local SQLite file can be erased on a restart, redeploy, or instance replacement.
+
+**To keep accounts and transactions**, create an external hosted PostgreSQL database that supports persistent storage (for example, a free-tier plan from Neon or Supabase subject to their current terms), then open **Render → your Smart Spend web service → Environment** and add `DATABASE_URL` with the private PostgreSQL connection string. The optional `postgres_adapter.py` uses this connection and initializes the required tables automatically at server startup. Never put the URL or database password in public GitHub, the HTML, or `render.yaml`. Keep `SMARTSPEND_ADMIN_PASSWORD` private too.
+
+**Caution:** Setting `DATABASE_URL` switches to a separate, initially empty database. Existing SQLite accounts, sessions, and transactions are **not automatically transferred**. Export any existing records before switching; the account export contains no recoverable passwords. Users may need to register again. This optional PostgreSQL route has not been integration-tested against a live database provider; test it with fictional data before depending on it.
+
+### Admin user directory
+
+Open **Admin → Users**. Search by name, email, or user ID. Sort by newest/oldest registration, name A–Z/Z–A, or email A–Z/Z–A. These controls filter/sort loaded account records; the login password hashes are never displayed.
 
 ## Admin access
 Log in from the normal login page using `SMARTSPEND_ADMIN_EMAIL` and `SMARTSPEND_ADMIN_PASSWORD`. The configured admin can inspect users, transactions, model results, and imports and export CSVs. **It cannot see plaintext user passwords; passwords are salted and hashed.**

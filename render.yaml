@@ -1,5 +1,5 @@
 # Optional: deploy as a Render Blueprint (New -> Blueprint).
-# The free instance has EPHEMERAL storage: the SQLite database can reset.
+# SQLite is temporary on Render Free. For permanent storage, add DATABASE_URL privately in Render Environment.
 services:
   - type: web
     name: smart-spend
@@ -19,3 +19,5 @@ services:
         value: adminsmartspend@2026
       - key: SMARTSPEND_ADMIN_PASSWORD
         sync: false
+      # Set DATABASE_URL manually in Render Environment after creating a hosted PostgreSQL database.
+      # Never put the database connection string in public GitHub.

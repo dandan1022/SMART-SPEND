@@ -1,16 +1,29 @@
-"""SQLite storage. Financial values are stored as integer centavos, not floats."""
+"""SQLite for local demo, optional persistent PostgreSQL via DATABASE_URL."""
 import os
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+DATABASE_URL = os.environ.get('DATABASE_URL', '').strip()
 DB_PATH = Path(os.environ.get('SMARTSPEND_DB', str(ROOT / 'smartspend.sqlite3')))
 
 
 @contextmanager
 def get_db():
     """Open a connection and ALWAYS close it after a request."""
+    if DATABASE_URL:
+        from postgres_adapter import Connection
+        conn = Connection(DATABASE_URL)
+        try:
+            yield conn
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+        return
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(str(DB_PATH), timeout=15)
     try:
@@ -27,6 +40,10 @@ def get_db():
 
 
 def setup():
+    if DATABASE_URL:
+        from postgres_adapter import setup as pg_setup
+        pg_setup(DATABASE_URL)
+        return
     with get_db() as conn:
         conn.executescript('''
             PRAGMA journal_mode=WAL;
